@@ -1,1 +1,1 @@
-Resource content 2
+this one has only part of the rerouce this + "resource.present" so it has a middle score!
