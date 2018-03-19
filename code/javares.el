@@ -149,6 +149,13 @@ It uses the frontier convention that resources and java are subtrees of a common
                 (javares--evaluate-file path key))
               (javares-relevant-java-files)))
 
+(defun javares-mark-unreferenced-resource ()
+  (interactive)
+  (let ((key (car (javares--parse-current-resource))))
+    (if (javares--evaluate-all-sources-against-key key)       
+        (javares--unmark-line)
+      (javares--mark-line-with-warning))))
+
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
 (defvar javares--fontify-lock-value (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$"  2 font-lock-string-face))
