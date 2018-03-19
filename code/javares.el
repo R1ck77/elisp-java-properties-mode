@@ -146,7 +146,6 @@ It uses the frontier convention that resources and java are subtrees of a common
 
 (defun javares--evaluate-all-sources-against-key (key)
   (seq-filter (lambda (path)
-                (message (concat "This is the path: " path))
                 (javares--evaluate-file path key))
               (javares-relevant-java-files)))
 
