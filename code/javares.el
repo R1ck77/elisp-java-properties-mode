@@ -31,16 +31,19 @@ Works only on absolute files"
       (if (equal path "") (error "no resources path ")))
     path))
 
-(defun javares--current-resources-path (&optional current-path)
-  "Find the resources files corresponding to the current java file using reasonable assumptions.
+(defun javares--find-subtree-path (resources &optional current-path)
+  "Returns either the java or the resources base path relative to a specified path, or the current buffer.
 
-Assumes that the java and resources will have a common ancestor, and that the code and resources
-will reside respectively in a \"java\" and \"resources\" directories.
-
-This of course is not always the case, but for me, whatever…"
-  (if (not current-path)
+Assumes that the correct java and resources directories are siblings."
+    (if (not current-path)
       (setq current-path (file-truename (buffer-file-name))))
-  (concat (javares--find-code-basepath current-path) "/resources"))
+  (concat (javares--find-code-basepath current-path) (if resources "/resources" "/java")))
+
+(defun javares--current-resources-path (&optional current-path)
+  (javares--find-subtree-path t current-path))
+
+(defun javares--current-java-path (&optional current-path)
+    (javares--find-subtree-path nil current-path))
 
 (defun javares--resource-path (javares--resource-path &optional resources-base-path error-message)
   "Resolve the relative path \"javares--resource-path\"
@@ -104,7 +107,43 @@ It either uses \"resources-base-path\" or the base path found using the current 
 Raise an error in case of an invalid resource"
   (if (javares--valid-resource t)
       (message "The resource is valid")
-      (error "The resource is not valid")))
+    (error "The resource is not valid")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TODO/FIXME don't use find, roll your own!
+(defun javares--raw-get-all-java-files (path)
+  (shell-command-to-string (format "find %s -type f -iname '*.java' 2>/dev/null"
+                                   (file-truename path))))
+
+(defun javares--get-all-java-files (path)
+  "Use GNU's find to list all java files in the hierarchy below path
+
+Returns nil if no files is found. Ignore errors."  
+  (let ((raw-result (javares--raw-get-all-java-files path)))
+    (if (string-match "java" raw-result)
+        (split-string raw-result "\n"))))
+
+(defun javares-relevant-java-files ()
+  "Return a list of java files that have access to the current resources
+
+It uses the frontier convention that resources and java are subtrees of a common ancestor"
+  (javares--get-all-java-files (javares--current-java-path)))
+
+(defun javares--file-contains-string (path string)
+  "Returns the index of the string if it could be found, or nil otherwise"
+  (save-excursion
+    (find-file path)
+    (let ((search-result (search-forward string nil t)))
+      (kill-buffer (current-buffer))
+      search-result)))
+
+(defun javares--last-key-component (key)
+  (split-string key "[.]"))
+
+(defun javares--evaluate-file (path key)
+  (or (javares--file-contains-string path (concat "\"" key "\""))
+      (javares--file-contains-string path (concat key "\""))))
+
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
