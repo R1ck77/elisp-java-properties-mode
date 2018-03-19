@@ -1,1 +1,1 @@
-this file has the key "resource.present" so it has the highest score!
+data 1

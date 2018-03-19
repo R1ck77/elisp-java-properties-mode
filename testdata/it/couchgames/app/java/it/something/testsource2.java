@@ -1,0 +1,1 @@
+middle score: resource.present"
