@@ -144,10 +144,13 @@ It uses the frontier convention that resources and java are subtrees of a common
   (or (javares--file-contains-string path (concat "\"" key "\""))
       (javares--file-contains-string path (concat key "\""))))
 
-(defun javares--evaluate-all-sources-against-key (key)
+(defun javares--evaluate-sources-against-key (key sources)
   (seq-filter (lambda (path)
                 (javares--evaluate-file path key))
-              (javares-relevant-java-files)))
+              sources))
+
+(defun javares--evaluate-all-sources-against-key (key)
+  (javares--evaluate-sources-against-key key (javares-relevant-java-files)))
 
 (defun javares-mark-unreferenced-resource ()
   (interactive)
@@ -155,6 +158,15 @@ It uses the frontier convention that resources and java are subtrees of a common
     (if (javares--evaluate-all-sources-against-key key)       
         (javares--unmark-line)
       (javares--mark-line-with-warning))))
+
+(defun javares--for-each-line (process-line)
+  (save-excursion
+    (goto-char (point-min))
+    (while SOMETHING
+      )))
+
+(defun javares-check-all-resources ()
+)
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
