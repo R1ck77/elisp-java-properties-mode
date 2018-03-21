@@ -28,7 +28,7 @@
 
 (defun expiring-cache--get-values (cache)
   "Get the values from the cache"
-  (cdr (cdr cache)))
+  (car (cdr (cdr cache))))
 
 (defun expiring-cache--get-max-time (cache)
   "Get the maximum life of an entry"
@@ -48,13 +48,28 @@
                                                                   log-removals))))
   cache)
 
-(defun expiring-cache-set (cache key value)
-  )
+(defun delete-all-keys (key alist)
+  (setq alist (seq-filter (lambda (element)
+                 (not (equal key (car element))))
+               alist)))
 
-(defun expiring-cache-get (cache key value)
-  )
+(defun expiring-cache-set (cache key value)
+  (let ((now (float-time))
+        (values (expiring-cache--get-values cache)))
+    (setq values (delete-all-keys key values))
+    (expiring-cache--set-values cache (append values (list (list key now value))))
+    cache))
+
+(defun expiring-cache-get (cache key)
+  (expiring-cache--clean cache t)
+  (assoc key (expiring-cache--get-values cache)))
 
 (defun expiring-cache-get-or (cache key value function)
-  )
+  (let ((result (expiring-cache-get cache key)))
+    (if (not result)
+        (let ((new-result (funcall function)))
+          (expiring-cache-set cache key new-result)
+          new-result)
+        result)))
 
 (provide 'expiring-cache)
