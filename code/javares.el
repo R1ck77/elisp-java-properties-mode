@@ -1,10 +1,6 @@
 (require 'seq)
 (require 'find-wrapper)
 
-(defun javares--build-cache ()
-  
-  )
-
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
   (= 2 (length (seq-filter (lambda (component)

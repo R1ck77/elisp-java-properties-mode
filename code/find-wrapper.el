@@ -1,6 +1,7 @@
+(require 'expcache)
 
 (defvar find-wrapper--files-cache nil "cache with the list of files in the java directory")
-(make-variable-buffer-local find-wrapper--files-cache)
+(make-variable-buffer-local 'find-wrapper--files-cache)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -18,7 +19,12 @@ Returns nil if no files is found. Ignore errors."
         (split-string raw-result "\n"))))
 
 (defun find-wrapper-get-all-java-files (path)
-  )
+  (if (not find-wrapper--files-cache)
+      (setq find-wrapper--files-cache (expcache-new-cache)))
+  (expcache-get-or find-wrapper--files-cache
+                   "files"
+                   (lambda ()
+                     (find-wrapper-find-all-java-files path))))
 
 
 (provide 'find-wrapper)
