@@ -1,4 +1,9 @@
 (require 'seq)
+(require 'find-wrapper)
+
+(defun javares--build-cache ()
+  
+  )
 
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
@@ -109,25 +114,12 @@ Raise an error in case of an invalid resource"
       (message "The resource is valid")
     (error "The resource is not valid")))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; TODO/FIXME don't use find, roll your own!
-(defun javares--raw-get-all-java-files (path)
-  (shell-command-to-string (format "find %s -type f -iname '*.java' 2>/dev/null"
-                                   (file-truename path))))
-
-(defun javares--get-all-java-files (path)
-  "Use GNU's find to list all java files in the hierarchy below path
-
-Returns nil if no files is found. Ignore errors."  
-  (let ((raw-result (javares--raw-get-all-java-files path)))
-    (if (string-match "java" raw-result)
-        (split-string raw-result "\n"))))
 
 (defun javares-relevant-java-files ()
   "Return a list of java files that have access to the current resources
 
 It uses the frontier convention that resources and java are subtrees of a common ancestor"
-  (javares--get-all-java-files (javares--current-java-path)))
+  (find-wrapper-get-all-java-files (javares--current-java-path)))
 
 (defun javares--file-contains-string (path string)
   "Returns the index of the string if it could be found, or nil otherwise"
