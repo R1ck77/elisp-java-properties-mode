@@ -1,5 +1,5 @@
 (require 'seq)
-(require 'find-wrapper)
+(require 'fwrapper)
 
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
@@ -115,7 +115,7 @@ Raise an error in case of an invalid resource"
   "Return a list of java files that have access to the current resources
 
 It uses the frontier convention that resources and java are subtrees of a common ancestor"
-  (find-wrapper-get-all-java-files (javares--current-java-path)))
+  (fwrapper-get-all-java-files (javares--current-java-path)))
 
 (defun javares--file-contains-string (path string)
   "Returns the index of the string if it could be found, or nil otherwise"
