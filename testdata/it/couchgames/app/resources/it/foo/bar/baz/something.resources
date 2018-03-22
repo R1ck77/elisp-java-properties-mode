@@ -1,4 +1,5 @@
 
+string.not.to.translate.but.valid = this should be ok
 resource.present = it/foo/bar/data.txt
 other.resource.present = it/foo/bar/foobar/data.txt
 resource.not.present = it/missing/data.txt
