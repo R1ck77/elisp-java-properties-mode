@@ -148,7 +148,7 @@ It uses the frontier convention that resources and java are subtrees of a common
 (defun javares-mark-unreferenced-resource ()
   (interactive)
   (let ((key (car (javares--parse-current-resource))))
-    (if (javares--evaluate-all-sources-against-key key)       
+    (if (javares--evaluate-all-sources-against-key key)
         (javares--unmark-line)
       (javares--mark-line-with-warning))))
 
@@ -157,6 +157,23 @@ It uses the frontier convention that resources and java are subtrees of a common
 
 (defun javares-check-all-resources ()
   (seql-for-each-line-boundaries 'javares-check-line))
+
+(defun javares-remove-resource-with-file ()
+(let* ((parsed-resource (javares--parse-current-resource))
+         (key (car parsed-resource))
+         (value (cdr parsed-resource)))
+  ;;; TODO this part is just sketched
+  (beginning-of-line)
+  (kill-line 1)))
+
+(defun javares-safe-remove-resource-with-file ()
+  (let* ((parsed-resource (javares--parse-current-resource))
+         (key (car parsed-resource))
+         (value (cdr parsed-resource))
+         (dependencies ((javares--evaluate-all-sources-against-key key))))
+    (if (not dependencies)
+        (javares-remove-resource-with-file)
+      (message (format "Unable to safely delete the resource, it has dependencies with: %s" dependencies)))))
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
