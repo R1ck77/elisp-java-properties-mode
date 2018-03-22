@@ -159,12 +159,13 @@ It uses the frontier convention that resources and java are subtrees of a common
   (seql-for-each-line-boundaries 'javares-check-line))
 
 (defun javares-remove-resource-with-file ()
-(let* ((parsed-resource (javares--parse-current-resource))
+  (interactive)
+  (let* ((parsed-resource (javares--parse-current-resource))
          (key (car parsed-resource))
-         (value (cdr parsed-resource)))
-  ;;; TODO this part is just sketched
-  (beginning-of-line)
-  (kill-line 1)))
+         (resource-file (javares--resource-path (cdr parsed-resource))))
+    (delete-file resource-file)
+    (beginning-of-line)
+    (kill-line 1)))
 
 (defun javares-safe-remove-resource-with-file ()
   (let* ((parsed-resource (javares--parse-current-resource))
