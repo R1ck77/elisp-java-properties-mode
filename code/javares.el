@@ -156,7 +156,7 @@ It uses the frontier convention that resources and java are subtrees of a common
   (javares-mark-unreferenced-resource))
 
 (defun javares-check-all-resources ()
-  (seql-for-each-line-boundaries javares-check-line))
+  (seql-for-each-line-boundaries 'javares-check-line))
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
