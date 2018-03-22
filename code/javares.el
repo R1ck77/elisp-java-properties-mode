@@ -159,19 +159,20 @@ It uses the frontier convention that resources and java are subtrees of a common
   (seql-for-each-line-boundaries 'javares-check-line))
 
 (defun javares-remove-resource-with-file ()
+  "Remove the resource and the file associated to it"
   (interactive)
   (let* ((parsed-resource (javares--parse-current-resource))
-         (key (car parsed-resource))
          (resource-file (javares--resource-path (cdr parsed-resource))))
     (delete-file resource-file)
     (beginning-of-line)
     (kill-line 1)))
 
+(defun javares--current-resource-dependencies ()
+  ((javares--evaluate-all-sources-against-key (car (javares--parse-current-resource)))))
+
 (defun javares-safe-remove-resource-with-file ()
-  (let* ((parsed-resource (javares--parse-current-resource))
-         (key (car parsed-resource))
-         (value (cdr parsed-resource))
-         (dependencies ((javares--evaluate-all-sources-against-key key))))
+  "Remove the resource and the file associated with it, only if the resource is not referenced"
+  (let ((dependencies (javares--current-resource-dependencies)))
     (if (not dependencies)
         (javares-remove-resource-with-file)
       (message (format "Unable to safely delete the resource, it has dependencies with: %s" dependencies)))))
