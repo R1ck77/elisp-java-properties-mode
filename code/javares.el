@@ -1,5 +1,6 @@
 (require 'seq)
 (require 'fwrapper)
+(require 'seql)
 
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
@@ -147,14 +148,11 @@ It uses the frontier convention that resources and java are subtrees of a common
         (javares--unmark-line)
       (javares--mark-line-with-warning))))
 
-(defun javares--for-each-line (process-line)
-  (save-excursion
-    (goto-char (point-min))
-    (while SOMETHING
-      )))
+(defun javares-check-line (beginning end)
+  (javares-mark-unreferenced-resource))
 
 (defun javares-check-all-resources ()
-)
+  (seql-for-each-line-boundaries javares-check-line))
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
