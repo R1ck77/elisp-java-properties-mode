@@ -2,6 +2,10 @@
 (require 'fwrapper)
 (require 'seql)
 
+;;; run
+;;; (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
+;;; to test this code 
+
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
   (= 2 (length (seq-filter (lambda (component)
