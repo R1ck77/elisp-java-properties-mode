@@ -5,10 +5,15 @@
 (defvar fwrapper--files-cache nil "cache with the list of files in the java directory")
 (make-variable-buffer-local 'fwrapper--files-cache)
 
-(defun safe-directory-files (path)
+(defun fwrapper--safe-directory-file-names (path)
   (condition-case nil
       (directory-files path)
     (error nil)))
+
+(defun fwrapper--safe-directory-files (path)
+  (mapcar (lambda (file-name)
+            (concat (file-name-as-directory path) file-name))
+          (fwrapper--safe-directory-file-names path)))
 
 (defun fwrapper--readable-file-p (path)
   "t if the file is readable and is not a directory (it could be a link, though)"
@@ -33,12 +38,13 @@ It must be:
 (defun fwrapper--all-files (path)
   (if (not (file-directory-p path))
       (list path)
-    (let* ((contents (safe-directory-files path))
+    (let* ((contents (fwrapper--safe-directory-files path))
            (files (seq-filter 'fwrapper--readable-file-p contents))
            (directories (seq-filter 'fwrapper--recursable-directory-p contents)))
-      (cl-reduce 'append
-                 (map fwrapper--all-files directories)
-                 :initial-value files))))
+      (while directories
+        (setq files (append files (fwrapper--all-files (car directories))))
+        (setq directories (cdr directories)))
+      files)))
 
 (defun fwrapper-all-files (path)
   (fwrapper--all-files (file-truename path)))
