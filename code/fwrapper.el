@@ -1,8 +1,47 @@
 (require 'expcache)
+(require 'seq)
+(require 'cl-seq)
 
 (defvar fwrapper--files-cache nil "cache with the list of files in the java directory")
 (make-variable-buffer-local 'fwrapper--files-cache)
 
+(defun safe-directory-files (path)
+  (condition-case nil
+      (directory-files path)
+    (error nil)))
+
+(defun fwrapper--readable-file-p (path)
+  "t if the file is readable and is not a directory (it could be a link, though)"
+  (and (file-readable-p path)
+       (not (file-directory-p path))))
+
+(defun fwrapper--recursable-directory-p (path)
+  "t if the directory is useful in a recursive search for files.
+
+It must be:
+- a directory
+- readable
+- not . or ..
+- not a symbolic link"
+(and (file-directory-p path)
+     (file-readable-p path)
+     (not (file-symlink-p path))
+     (let ((basename (file-name-base path)))
+          (not (or (equal "." basename)
+                   (equal ".." basename))))))
+
+(defun fwrapper--all-files (path)
+  (if (not (file-directory-p path))
+      (list path)
+    (let* ((contents (safe-directory-files path))
+           (files (seq-filter 'fwrapper--readable-file-p contents))
+           (directories (seq-filter 'fwrapper--recursable-directory-p contents)))
+      (cl-reduce 'append
+                 (map fwrapper--all-files directories)
+                 :initial-value files))))
+
+(defun fwrapper-all-files (path)
+  (fwrapper--all-files (file-truename path)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; TODO/FIXME don't use find, roll your own!
