@@ -15,10 +15,11 @@
             (concat (file-name-as-directory path) file-name))
           (fwrapper--safe-directory-file-names path)))
 
-(defun fwrapper--readable-file-p (path)
-  "t if the file is readable and is not a directory (it could be a link, though)"
+(defun fwrapper--readable-file-p (path &optional accept-links)
+  "t if the file is readable and is not a directory or a link, if the case"
   (and (file-readable-p path)
-       (not (file-directory-p path))))
+       (not (file-directory-p path))
+       (or accept-links (not (file-symlink-p path)))))
 
 (defun fwrapper--recursable-directory-p (path)
   "t if the directory is useful in a recursive search for files.
