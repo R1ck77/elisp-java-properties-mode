@@ -2,9 +2,11 @@
 (require 'fwrapper)
 (require 'seql)
 
-;;; run
-;;; (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
-;;; to test this code 
+(defvar javares-path-resource-regexp ".+?/.+")
+
+;;; eval
+;;;    (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
+;;; before this module to add this directory to the emacs load path
 
 (defun javares--contains-java-and-resources-p (path)
   "Check whether the current path contains both a resources and a java path"
@@ -89,31 +91,33 @@ It either uses \"resources-base-path\" or the base path found using the current 
       (let ((end (point)))
         (remove-text-properties start end '(font-lock-face))))))
 
-(defun javares--valid-resource (&optional should-mark-line)
+(defun javares-resource-seems-a-path-p (resource)
+  "Returns not nil if the resource looks like a path.
+
+The regular expression used to identify a path is stored in javares-path-resource-regexp. "
+  (string-match javares-path-resource-regexp resource))
+
+(defun javares--resource-invalid-p ()
   "Returns the full path of the resource at line if the resource is valid, nil otherwise"
-  (let ((key-value (javares--parse-current-resource)))
-    (if key-value
-        (let ((key (car key-value))
-              (value (cdr key-value)))
-          (if should-mark-line (javares--unmark-line))
-          (let ((result (javares--resource-path value nil t)))
-            (if result
-                (progn
-                  (javares--unmark-line)
-                  result)
-              (progn
-                (javares--mark-line-with-warning)
-                nil))))
-      (if should-mark-line (javares--mark-line-with-warning)))))
+  (let ((resource-value (cdr (javares--parse-current-resource))))
+    (if (not resource-value)
+        "The line is not a syntactically valid resource"
+      (if (not (javares-resource-seems-a-path-p resource-value))
+          nil
+        (if (and (javares-resource-seems-a-path-p resource-value)
+                 (not (javares--resource-path resource-value nil t)))
+            (format "The resource '%s' looks like a path, but the corresponding file is missing" resource-value))))))
 
 (defun javares-check-resource ()
   (interactive)
   "Check if the resource at line is present. 
 
 Raise an error in case of an invalid resource"
-  (if (javares--valid-resource t)
-      (message "The resource is valid")
-    (error "The resource is not valid")))
+  (let ((check-result (javares--resource-invalid-p)))
+    (if check-result
+        (javares--unmark-link)
+      (javares--mark-line-with-warning)
+      (error check-result))))
 
 
 (defun javares-relevant-java-files ()
