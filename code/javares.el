@@ -114,11 +114,10 @@ The regular expression used to identify a path is stored in javares-path-resourc
 
 Raise an error in case of an invalid resource"
   (let ((check-result (javares--resource-invalid-p)))
-    (if check-result
-        (javares--unmark-link)
+    (if (not check-result)
+        (javares--unmark-line)
       (javares--mark-line-with-warning)
       (error check-result))))
-
 
 (defun javares-relevant-java-files ()
   "Return a list of java files that have access to the current resources
