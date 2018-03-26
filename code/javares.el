@@ -180,6 +180,10 @@ It uses the frontier convention that resources and java are subtrees of a common
         (javares-remove-resource-with-file)
       (message (format "Unable to safely delete the resource, it has dependencies with: %s" dependencies)))))
 
+(defun javares-check-resources-usage ()
+  "For each line in the file that looks like a resource, check if the key is even just loosely referenced"
+  )
+
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
 (defvar javares--fontify-lock-value (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$"  2 font-lock-string-face))
@@ -223,7 +227,8 @@ It uses the frontier convention that resources and java are subtrees of a common
 
 (defun javares--deactivate ()
   "Finalize Java Resources mode"
-  (javares-remove-fontify-keywords))
+  (javares-remove-fontify-keywords)
+  (javares-check-resources-usage))
 
 ;;; Boilerplate initialization code
 (defvar javares-mode nil "Java resources manipulation minor mode")
