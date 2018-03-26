@@ -75,21 +75,31 @@ It either uses \"resources-base-path\" or the base path found using the current 
       (if (search-forward-regexp "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" nil t)
           (cons (match-string 1) (match-string 2))))))
 
-(defun javares--mark-line-with-warning ()
+
+(defun javares--apply-on-current-line (text-highlighter)
   (save-excursion
     (beginning-of-line)
     (let ((start (point)))
       (end-of-line)
       (let ((end (point)))
-        (put-text-property start end 'font-lock-face font-lock-warning-face)))))
+        (funcall text-highlighter start end)))))
+
+(defun javares--mark-line-with-error ()
+  (javares--apply-on-current-line (lambda (start end)
+                                            (put-text-property start end 'font-lock-face font-lock-warning-face))))
+
+(defun javares--mark-line-with-warning ()
+  (javares--apply-on-current-line (lambda (start end)
+                                    (put-text-property start end 'font-lock-face font-lock-comment-face))))
+
+(defun javares--mark-resource-with-warning ()
+  ;;; TODO: not finished
+  (javares--apply-on-current-line (lambda (start end)
+                                            (put-text-property start end 'font-lock-face font-lock-comment-face))))
 
 (defun javares--unmark-line ()
-  (save-excursion
-    (beginning-of-line)
-    (let ((start (point)))
-      (end-of-line)
-      (let ((end (point)))
-        (remove-text-properties start end '(font-lock-face))))))
+  (javares--apply-on-current-line (lambda (start end)
+                                    (remove-text-properties start end '(font-lock-face)))))
 
 (defun javares-resource-seems-a-path-p (resource)
   "Returns not nil if the resource looks like a path.
@@ -116,7 +126,7 @@ Raise an error in case of an invalid resource"
   (let ((check-result (javares--resource-invalid-p)))
     (if (not check-result)
         (javares--unmark-line)
-      (javares--mark-line-with-warning)
+      (javares--mark-line-with-error)
       (error check-result))))
 
 (defun javares-relevant-java-files ()
@@ -153,7 +163,7 @@ It uses the frontier convention that resources and java are subtrees of a common
   (let ((key (car (javares--parse-current-resource))))
     (if (javares--evaluate-all-sources-against-key key)
         (javares--unmark-line)
-      (javares--mark-line-with-warning))))
+      (javares--mark-resource-with-warning))))
 
 (defun javares-check-line (beginning end)
   (javares-mark-unreferenced-resource))
@@ -182,7 +192,8 @@ It uses the frontier convention that resources and java are subtrees of a common
 
 (defun javares-check-resources-usage ()
   "For each line in the file that looks like a resource, check if the key is even just loosely referenced"
-  )
+  (seql-for-each-line (lambda ())
+                      ))
 
 ;;; Font lock customization
 (defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
