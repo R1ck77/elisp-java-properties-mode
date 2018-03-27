@@ -101,9 +101,12 @@ It either uses \"resources-base-path\" or the base path found using the current 
                                     (put-text-property start end 'font-lock-face font-lock-comment-face))))
 
 (defun javares--mark-resource-with-warning ()
-  ;;; TODO: not finished
-  (javares--apply-on-current-line (lambda (start end)
-                                            (put-text-property start end 'font-lock-face font-lock-comment-face))))
+
+  (let ((limits (javares--current-resource-limits)))
+    (when limits
+      (put-text-property (nth 2 limits) (nth 3 limits)
+                         'font-lock-face
+                         font-lock-comment-face))))
 
 (defun javares--unmark-line ()
   (javares--apply-on-current-line (lambda (start end)
