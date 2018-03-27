@@ -62,25 +62,27 @@ It either uses \"resources-base-path\" or the base path found using the current 
   (let ((candidate-path (concat resources-base-path "/" javares--resource-path)))
     (if (file-readable-p candidate-path)
         candidate-path
-      (if error-message
-          (progn
-            (message (concat "Error locating the resource: \"" candidate-path "\" is not readable!"))
-            nil)))))
+      (when error-message
+          (message (concat "Error locating the resource: \"" candidate-path "\" is not readable!"))
+          nil))))
 
 (defun javares--current-resource-limits ()
   "Read the current line and return a cons cell with the key and value"
   (save-excursion
-    (beginning-of-line)
-    (save-match-data
-      (when (search-forward-regexp "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" nil t)
-        (list (match-beginning 1) (match-end 1)
-              (match-beginning 2) (match-end 2))))))
+    (save-restriction
+      (narrow-to-region (line-beginning-position) (line-end-position))
+      (goto-char (point-min))
+     (save-match-data
+       (when (search-forward-regexp "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" nil t)
+         (list (match-beginning 1) (match-end 1)
+               (match-beginning 2) (match-end 2)))))))
 
 (defun javares--parse-current-resource ()
   "Read the current line and return a cons cell with the key and value"
   (let ((limits (javares--current-resource-limits)))
-    (cons (buffer-substring (nth 0 limits) (nth 1 limits))
-          (buffer-substring (nth 2 limits) (nth 3 limits)))))
+    (if limits
+        (cons (buffer-substring (nth 0 limits) (nth 1 limits))
+              (buffer-substring (nth 2 limits) (nth 3 limits))))))
 
 (defun javares--apply-on-current-line (text-highlighter)
   (save-excursion
