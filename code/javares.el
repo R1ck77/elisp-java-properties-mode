@@ -206,20 +206,6 @@ It uses the frontier convention that resources and java are subtrees of a common
   (seql-for-each-line (lambda ())
                       ))
 
-;;; Font lock customization
-(defvar javares--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
-(defvar javares--fontify-lock-value (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$"  2 font-lock-string-face))
-
-(defun javares-add-fontify-keywords ()
-  (interactive)
-  (font-lock-add-keywords nil (list javares--fontify-lock-key
-                                    javares--fontify-lock-value)))
-
-(defun javares-remove-fontify-keywords ()
-  (interactive)
-  (font-lock-remove-keywords nil (list javares--fontify-lock-key
-                                       javares--fontify-lock-value)))
-
 ;;; periodic check (not yet used)
 
 ;;; Timer related stuff. TBD
