@@ -16,8 +16,11 @@ and if that's the case, stop with an error"
         ;;; Valid resources
         (let ((resource-file (jproperty-utils-resource-as-path (cdr key-value))))
           (if (jproperty-utils-is-file-p resource-file)
-              ;;; Resources with an associated file require also the file to be deleted
-              (jproperty-utils-remove-line-and-file resource-file)
+              (if (or (not check-java-dependencies)
+                      (jproperty-utils-java-dependencies-p (car key-value)))
+                  ;;; Valid resources when removed should remove the corresponding file
+                  (jproperty-utils-remove-line-and-file resource-file)
+                (error (format "I won't remove referenced resource '%s'" (car key-value))))
             ;;; Resources not associated with files just need the line removed
             (jproperty-utils-kill-line)))
       ;;; Invalid resource lines are deleted without question
