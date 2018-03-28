@@ -4,13 +4,17 @@
   (message "** delete resource stub")
   )
 
-(defvar jproperty--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
-(defvar jproperty--fontify-lock-value (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$"  2 font-lock-string-face))
-
+;;; Fontification of resources
+(defvar jproperty--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.+?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
+(defvar jproperty--fontify-lock-value (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.+?\\)[[:blank:]]*$"  2 font-lock-string-face))
+(defvar jproperty--fontify-lock-wrong-resource (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*$"  1 font-lock-warning-face))
 (defun jproperty-add-fontify-keywords ()
-  (interactive)
-  (font-lock-add-keywords nil (list jproperty--fontify-lock-key
-                                    jproperty--fontify-lock-value)))
+  (interactive)   ;;; TODO add wrong resources to fontification
+  (font-lock-add-keywords nil (list
+                                    jproperty--fontify-lock-value
+                                    jproperty--fontify-lock-wrong-resource
+                                    jproperty--fontify-lock-key
+                                    )))
 
 ;;; Mode boilerplate code
 (defvar jproperty-mode-hook nil "*Hooks to execute upon activating jproperty mode")
