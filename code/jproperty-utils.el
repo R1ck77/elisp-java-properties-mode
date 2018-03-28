@@ -10,8 +10,9 @@
 
 (defun jproperty-utils-kill-line ()
   "kill a whole line"
-  
-  )
+  (save-excursion
+    (beginning-of-line)
+    (kill-line 1)))
 
 (defun jproperty-utils-remove-line-and-file (path)
   "Remove the path and, on success, the line.
