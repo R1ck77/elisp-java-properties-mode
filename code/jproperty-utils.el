@@ -97,6 +97,7 @@ Fails with an error if the file cannot be deleted"
 
 (defun jproperty-utils-java-dependencies-p (key)
   "Return not nil if the key is referenced (with some logic) in a java file"
+  t ;;; STUB
   )
 
 
