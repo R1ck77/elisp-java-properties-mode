@@ -49,10 +49,9 @@ Works only on absolute files"
 (defun jproperty-utils-resource-as-path (resource-part)
   "Interpret the resource as a relative path, and return the absolute path, whether it makes sense or not."
   "Return the resource as a path relative to the current basepath"
-  (candidate-path (concat
-                   (file-name-as-directory
-                    (jproperty-utils--resource-subtree))
-                   resource-path)))
+  (concat (file-name-as-directory
+           (jproperty-utils--resource-subtree))
+          resource-part))
 
 (defun jproperty-utils-kill-line ()
   "kill a whole line"
