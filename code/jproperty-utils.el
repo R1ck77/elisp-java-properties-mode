@@ -73,10 +73,27 @@ Fails with an error if the file cannot be deleted"
       (jproperty-utils-kill-line)
     (error (format "Unable to remove file '%s' associated with resource" path))))
 
+(defun jproperty-utils--current-resource-limits ()
+  "Read the current line and return a cons cell with the key and value"
+  (save-excursion
+    (save-restriction
+      (narrow-to-region (line-beginning-position) (line-end-position))
+      (goto-char (point-min))
+     (save-match-data
+       (when (search-forward-regexp "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" nil t)
+         (list (match-beginning 1) (match-end 1)
+               (match-beginning 2) (match-end 2)))))))
+
+(defun jproperty-utils--parse-current-resource ()
+  "Read the current line and return a cons cell with the key and value"
+  (let ((limits (jproperty-utils--current-resource-limits)))
+    (if limits
+        (cons (buffer-substring (nth 0 limits) (nth 1 limits))
+              (buffer-substring (nth 2 limits) (nth 3 limits))))))
+
 (defun jproperty-utils-valid-resource-p ()
   "Returns a cons cell with resource key and value for valid non empty resources, nil otherwise"
- 
-  )
+  (jproperty-utils--parse-current-resource))
 
 (defun jproperty-utils-java-dependencies-p (key)
   "Return not nil if the key is referenced (with some logic) in a java file"
