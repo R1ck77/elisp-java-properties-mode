@@ -31,13 +31,14 @@ Works only on absolute files"
       (if (equal path "") (error "no resources path ")))
     path))
 
+(defun jproperty-utils--current-code-basepath ()
+  (file-name-as-directory (jproperty-utils--find-code-basepath (file-truename (buffer-file-name)))))
+
 (defun jproperty-utils--java-subtree ()
-  (concat (jproperty-utils--find-code-basepath (file-truename (buffer-file-name)))
-          "/java"))
+  (concat (jproperty-utils--current-code-basepath) "java"))
 
 (defun jproperty-utils--resource-subtree ()
-  (concat (jproperty-utils--find-code-basepath (file-truename (buffer-file-name)))
-          "/resources"))
+  (concat (jproperty-utils--current-code-basepath) "resources"))
 
 (defun jproperty-utils-is-file-p (path)
   "Return the path if associated with a readable and writable non link file, nil otherwise"
