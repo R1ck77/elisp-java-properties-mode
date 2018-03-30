@@ -1,3 +1,4 @@
+(require 'fwrapper)
 (require 'seq)
 
 (defun jproperty-utils--drop-last-element (path)
@@ -94,10 +95,22 @@ Fails with an error if the file cannot be deleted"
   "Returns a cons cell with resource key and value for valid non empty resources, nil otherwise"
   (jproperty-utils--parse-current-resource))
 
-(defun jproperty-utils-java-dependencies-p (key)
-  "Return not nil if the key is referenced (with some logic) in a java file"
-  t ;;; STUB
+(defun GET_DEPENDENCIES (path key)
   )
 
+(defun JAVA_FILE_P (path)
+  t)
+
+(defun GET_ALL_JAVA_FILES ()
+  (seq-filter JAVA_FILE_P (fwrapper-all-files (jproperty-utils--java-subtree))))
+
+(defun jproperty-utils-java-dependencies-p (key)
+  "Return not nil if the key is referenced (with some logic) in a java file"
+  (let ((all-java-files (GET_ALL_JAVA_FILES))
+        (references nil))
+    (while all-java-files
+      (append references (GET_DEPENDENCIES (car all-java-files) key))
+      (setq all-java-files (cdr all-java-files)))
+    references))
 
 (provide 'jproperty-utils)

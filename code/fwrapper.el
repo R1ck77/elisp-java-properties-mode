@@ -72,4 +72,6 @@ Returns nil if no files is found. Ignore errors."
                    (lambda ()
                      (fwrapper-find-all-java-files path))))
 
+;;; the fact that the find version and the custom version file count doesn't match is mildly unsettling
+(message "WARNING!!!! fwrapper needs some serious debugging")
 (provide 'fwrapper)
