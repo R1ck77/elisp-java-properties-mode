@@ -1,5 +1,6 @@
 (require 'fwrapper)
 (require 'seq)
+(require 'seql)
 
 (defun jproperty-utils--drop-last-element (path)
   "Remove the last component from the path, until the path becomes a \"\"
@@ -96,33 +97,49 @@ Fails with an error if the file cannot be deleted"
   (jproperty-utils--parse-current-resource))
 
 (defun jproperty-utils-matching-lines-in-buffer (regex)
+  "Return all lines matching the specified regex in the current buffer as cons cells"
   (let ((accumulator nil)
-        (counter 1))
-    (seql-for-each-line (lambda (line)
-                          (setq counter (+ counter 1))
-                          (when (string-match-p regex line)
-                            (setq accumulator (append accumulator (cons counter line))))))))
+        (counter 0))
+    (seql-for-each-line-content (lambda (line)
+                                  (setq counter (+ counter 1))
+                                  (when (string-match-p regex line)
+                                    (setq accumulator (append accumulator
+                                                              (list (cons counter line)))))))
+    accumulator))
 
 (defun jproperty-utils-matching-lines-for-file (path regex)
   "Return a buffer visiting the path, or error if impossible to do so"
-  (with-current-buffer (find-file-noselect path t t)
+  (with-current-buffer (find-file-noselect path t)
     (goto-char (point-min))
     (jproperty-utils-matching-lines-in-buffer regex)))
 
 (defun jproperty-utils-full-key-matches-in-file (path key)
-  (jproperty-utils-matching-lines-for-file path
-                                  (regexp-quote (concat "\"" key "\""))))
+  "Check if the file contains lines matching the string '\"key\"'
+
+Return a cons cell with line number and content"  (jproperty-utils-matching-lines-for-file path
+                                           (regexp-quote (concat "\"" key "\""))))
+
+(defun jproperty-utils-last-key-element (key)
+  (car (last (split-string key "[.]"))))
 
 (defun jproperty-utils-tail-key-matches-in-file (path key)
+  "Check if the file contains lines matching the string 'last-key-element\"'
+
+last-key-element is the last component of the dot separated key.
+Return a cons cell with line number and content"
   (jproperty-utils-matching-lines-for-file path
-                                  (regexp-quote (concat key "\""))))
+                                  (regexp-quote (concat (jproperty-utils-last-key-element key) "\""))))
+
+(defun jproperty-utils-add-file-to-result (filename number-line)
+  "Turn a result of type (line-num . line-content) into (filename line content)"
+  (list (car number-line) filename (cdr number-line)))
 
 (defun jproperty-utils-dependency-of-key-from-path-p (path key)
   "Return nil if no file has dependencies from the current key
 
 If some dependency is found, a list of them is returned (to be better defined…)"
-  (let ((filename (file-name-base path)))
-    (mapcar (lambda (x) (concat filename ":" x))
+  (let ((filename (file-name-base path))) ;;; don't create a lambda at every turn!a
+    (mapcar (lambda (result) (jproperty-utils-add-file-to-result filename result))
             (append (jproperty-utils-full-key-matches-in-file path key)
                     (jproperty-utils-tail-key-matches-in-file path key)))))
 
