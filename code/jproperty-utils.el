@@ -95,18 +95,26 @@ Fails with an error if the file cannot be deleted"
   "Returns a cons cell with resource key and value for valid non empty resources, nil otherwise"
   (jproperty-utils--parse-current-resource))
 
-(defun GET_ALL_LINES_MATCHING_PATTERN (path regex)
+(defun jproperty-utils-matching-lines-in-buffer (regex)
+  (let ((accumulator nil)
+        (counter 1))
+    (seql-for-each-line (lambda (line)
+                          (setq counter (+ counter 1))
+                          (when (string-match-p regex line)
+                            (setq accumulator (append accumulator (cons counter line))))))))
+
+(defun jproperty-utils-matching-lines-for-file (path regex)
   "Return a buffer visiting the path, or error if impossible to do so"
   (with-current-buffer (find-file-noselect path t t)
     (goto-char (point-min))
-    (GET_ALL_LINES_MATCHING_PATTERN_IN_BUFFER regex)))
+    (jproperty-utils-matching-lines-in-buffer regex)))
 
-(defun GET_ALL_LINES_WITH_FULL_PATTERN (path key)
-  (GET_ALL_LINES_MATCHING_PATTERN path
+(defun jproperty-utils-full-key-matches-in-file (path key)
+  (jproperty-utils-matching-lines-for-file path
                                   (regexp-quote (concat "\"" key "\""))))
 
-(defun GET_ALL_LINES_WITH_TAIL_PATTERN (path key)
-  (GET_ALL_LINES_MATCHING_PATTERN path
+(defun jproperty-utils-tail-key-matches-in-file (path key)
+  (jproperty-utils-matching-lines-for-file path
                                   (regexp-quote (concat key "\""))))
 
 (defun jproperty-utils-dependency-of-key-from-path-p (path key)
@@ -115,8 +123,8 @@ Fails with an error if the file cannot be deleted"
 If some dependency is found, a list of them is returned (to be better defined…)"
   (let ((filename (file-name-base path)))
     (mapcar (lambda (x) (concat filename ":" x))
-            (append (GET_ALL_LINES_WITH_FULL_PATTERN path key)
-                    (GET_ALL_LINES_WITH_TAIL_PATTERN path key)))))
+            (append (jproperty-utils-full-key-matches-in-file path key)
+                    (jproperty-utils-tail-key-matches-in-file path key)))))
 
 (defun jproperty-utils-java-file-p (path)
   (string-match-p "\\.java$" path))

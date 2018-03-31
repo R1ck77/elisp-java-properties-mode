@@ -55,5 +55,3 @@ and if that's the case, stop with an error"
   (jproperty-add-fontify-keywords))
 
 (provide 'jproperty)
-
-
