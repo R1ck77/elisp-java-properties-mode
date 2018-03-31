@@ -4,15 +4,14 @@
 ;;;    (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
 ;;; before this module to add this directory to the emacs load path
 
-(defun jproperty-smart-delete-resource (check-java-dependencies)
+(defun jproperty-smart-delete-resource (&optional check-java-dependencies)
   "Delete the resource with the file, if present.
 
 If an argument is provided, also verify that the resource doesn't have any weak reference in the java files, 
 and if that's the case, stop with an error"
-  (interactive)
-  (message "** delete resource stub")
+  (interactive "P")
   (let ((key-value (jproperty-utils-valid-resource-p)))
-    (if (key-value)
+    (if key-value
         ;;; Valid resources
         (let ((resource-file (jproperty-utils-resource-as-path (cdr key-value))))
           (if (jproperty-utils-is-file-p resource-file)
