@@ -3,7 +3,8 @@ string.not.to.translate.but.valid = this should be ok
 resource.present = it/foo/bar/data.txt   
 other.resource.present = it/foo/bar/foobar/data.txt
 empty.resources.are.not.ok =    
-resource.not.present = it/missing/data.txt   
+resource.not.present = it/missing/data.txt
+file.present.but.resource.not.referenced = it/foo/bar/data.txt
 
 
 other.resource.after.empty.lines = whatever
