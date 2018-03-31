@@ -6,8 +6,8 @@
     (goto-char (point-min))
     (let ((keep-going t))
       (while keep-going
-        (setq keep-going (= (forward-line) 0))
-        (funcall task)))))
+        (funcall task)
+        (setq keep-going (= (forward-line) 0))))))
 
 (defun seql-for-each-line-boundaries (consumer)
   "Recurse each line in the buffer and apply the function consumer to each one, passing the line boundaries as arguments"
