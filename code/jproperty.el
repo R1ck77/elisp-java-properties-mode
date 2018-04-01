@@ -6,7 +6,7 @@
 ;;; Useful evaluation after loading the file
 ;;;    (add-hook 'find-file-hook 'jproperty-find-file-hook)
 
-(defun jproperty-smart-delete-resource (&optional check-java-dependencies)
+(defun jproperty-smart-delete-resource (&optional check-skip-java-dependencies-test)
   "Delete the resource with the file, if present.
 
 If an argument is provided, also verify that the resource doesn't have any weak reference in the java files, 
@@ -17,11 +17,11 @@ and if that's the case, stop with an error"
         ;;; Valid resources
         (let ((resource-file (jproperty-utils-resource-as-path (cdr key-value))))
           (if (jproperty-utils-is-file-p resource-file)
-              (if (or (not check-java-dependencies)
-                      (jproperty-utils-java-dependencies-p (car key-value)))
-                  ;;; Valid resources when removed should remove the corresponding file
-                  (jproperty-utils-remove-line-and-file resource-file)
-                (error (format "I won't remove referenced resource '%s'" (car key-value))))
+              (if (and (not check-skip-java-dependencies-test)
+                       (jproperty-utils-java-dependencies-p (car key-value)))
+                  (error (format "I won't remove referenced resource '%s'" (car key-value)))
+                ;;; Valid resources when removed should remove the corresponding file
+                (jproperty-utils-remove-line-and-file resource-file))
             ;;; Resources not associated with files just need the line removed
             (jproperty-utils-kill-line)))
       ;;; Invalid resource lines are deleted without question
