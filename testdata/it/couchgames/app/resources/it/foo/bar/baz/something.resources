@@ -8,7 +8,9 @@ file.present.but.resource.not.referenced = it/foo/bar/data.txt
 
 other.resource.after.empty.lines = whatever
 
-
-example.of.resource1 = fully referenced and partially referenced
-example.of.resource2 = fully referenced only
-example.of.resource3 = partially referenced only
+next.resource.is.fully.and.partially.referenced = true
+example.of.resource1 = it/foo/bar/data.txt
+next.resource.is.fully.referenced.only = true
+example.of.resource2 = it/foo/bar/data.txt
+next.resource.is.partially.referenced.only = true
+example.of.resource3 = it/foo/bar/data.txt
