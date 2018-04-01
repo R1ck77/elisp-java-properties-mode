@@ -1,1 +1,0 @@
-highest score: "resource.present"

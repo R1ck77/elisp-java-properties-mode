@@ -6,8 +6,9 @@ empty.resources.are.not.ok =
 resource.not.present = it/missing/data.txt
 file.present.but.resource.not.referenced = it/foo/bar/data.txt
 
-
 other.resource.after.empty.lines = whatever
 
 
-
+example.of.resource1 = fully referenced and partially referenced
+example.of.resource2 = fully referenced only
+example.of.resource3 = partially referenced only
