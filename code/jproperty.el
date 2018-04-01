@@ -4,7 +4,7 @@
 ;;;    (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
 ;;; before this module to add this directory to the emacs load path
 ;;; Useful evaluation after loading the file
-;;;    (add-hook 'find-file-hook 'javares-find-file-hook)
+;;;    (add-hook 'find-file-hook 'jproperty-find-file-hook)
 
 (defun jproperty-smart-delete-resource (&optional check-java-dependencies)
   "Delete the resource with the file, if present.
