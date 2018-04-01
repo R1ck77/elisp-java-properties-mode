@@ -255,13 +255,4 @@ It uses the frontier convention that resources and java are subtrees of a common
 (if (not (assq 'javares-mode minor-mode-alist))
     (setq minor-mode-alist (cons '(javares-mode " JAVAres")  minor-mode-alist)))
 
-(defun javares-find-file-hook ()
-  "Hook to add to 'find-file-hook to open .resources and .properties files as resources"
-  (let ((extension (file-name-extension buffer-file-name)))
-    (message (concat "THe extension is: " extension))
-    (when (or (string= "resources" extension)
-              (string= "properties" extension))
-      (javares-mode t)))
-)
-
 (provide 'javares)

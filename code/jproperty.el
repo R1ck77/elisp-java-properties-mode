@@ -3,6 +3,8 @@
 ;;; eval
 ;;;    (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
 ;;; before this module to add this directory to the emacs load path
+;;; Useful evaluation after loading the file
+;;;    (add-hook 'find-file-hook 'javares-find-file-hook)
 
 (defun jproperty-smart-delete-resource (&optional check-java-dependencies)
   "Delete the resource with the file, if present.
@@ -24,6 +26,14 @@ and if that's the case, stop with an error"
             (jproperty-utils-kill-line)))
       ;;; Invalid resource lines are deleted without question
       (jproperty-utils-kill-line))))
+
+;;; Hook utility function
+(defun jproperty-find-file-hook ()
+  "Java property mode when opening files ending with .resources and .properties"
+  (let ((extension (file-name-extension (buffer-name))))
+    (when (or (string= "resources" extension)
+              (string= "properties" extension))
+      (jproperty-mode))))
 
 ;;; Fontification of resources
 (defvar jproperty--fontify-lock-key (list "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.+?\\)[[:blank:]]*$" 1 font-lock-keyword-face))
