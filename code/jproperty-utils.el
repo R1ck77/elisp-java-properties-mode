@@ -151,12 +151,14 @@ If some dependency is found, a list of them is returned (to be better defined…
 
 (defun jproperty-utils-java-dependencies-p (key)
   "Return not nil if the key is referenced (with some logic) in a java file"
-  (let ((all-java-files (jproperty-get-all-java-files))
-        (references nil))
-    (while all-java-files
-      (setq references (append references (jproperty-utils-dependency-of-key-from-path-p (car all-java-files) key)))
-      (setq all-java-files (cdr all-java-files)))
-    references))
+  (if (null key)
+      nil
+      (let ((all-java-files (jproperty-get-all-java-files))
+            (references nil))
+        (while all-java-files
+          (setq references (append references (jproperty-utils-dependency-of-key-from-path-p (car all-java-files) key)))
+          (setq all-java-files (cdr all-java-files)))
+        references)))
 
 (defun jproperty-utils-apply-font-on-current-line (text-highlighter)
   (save-excursion
