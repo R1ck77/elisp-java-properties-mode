@@ -1,9 +1,9 @@
 Java properties mode for Emacs
 ===
 
-Allows under _a very specific sets of circumstances_ to safely delete unreferenced java resources along with the accompanying files.
+Allows under _a very specific sets of circumstances_ to safely delete unreferenced java property entries along with the accompanying files.
 
-It's a little project I'm working in my spare time as a hobby, to learn emacs lisp, and to make my experience with java resources more pleasant and safe, and has probably little use for anyone else.
+It's a little project I'm working in my spare time as a hobby, to learn emacs lisp, and to make my experience with java properties more pleasant and safe, and has probably little use for anyone else.
 
 Installation
 ===
@@ -13,13 +13,13 @@ Copy the files in "code" to a `load-path` directory and add
     (require 'jproeprty)
     (add-hook 'find-file-hook 'jproperty-find-file-hook) 
 
-in your config file to automatically turn the mode on.
+in your config file to automatically turn the mode on when loading files ending with `.resources` and `.properties`.
 
-It will highlight resources and provide a 
+It will highlight properties and provide a 
 
     jproperty-smart-delete-resource
 
-command (bound to `C-c C-k` by default) that will remove resources and files (if associated) if not referenced by the java files in the same tree.
+command (bound to `C-c C-k` by default) that will remove properties and files associated with them if not referenced by the java files in the same tree.
 
 In order for this code to work, the structure of the files should have sibling `java` and `resources`.
 
