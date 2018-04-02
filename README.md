@@ -15,13 +15,24 @@ Copy the files in "code" to a `load-path` directory and add
 
 in your config file to automatically turn the mode on when loading files ending with `.resources` and `.properties`.
 
-It will highlight properties and provide a 
+It will highlight properties and provide a couple of commands.
+
+Commands 
+====
 
     jproperty-smart-delete-resource
 
-command (bound to `C-c C-k` by default) that will remove properties and files associated with them if not referenced by the java files in the same tree.
+will remove properties and files associated with them if not referenced by the java files in the same tree. Bound to `C-c C-k` by default.
 
 In order for this code to work, the structure of the files should have sibling `java` and `resources`.
+
+    jproperty-check-key-of-current-property
+    
+will check the key of the property at point, and change the color of the key if not referenced by any java file in the subree (same considerations of the previous command about the filesystem layout applies). Bound to `C-c C-v` by default.
+
+    jproperty-check-all-keys-in-file
+    
+Like `jproperty-check-key-of-current-property`, but for each line in the current buffer. Bound to `C-c C-a` by default.
 
 License
 ===
