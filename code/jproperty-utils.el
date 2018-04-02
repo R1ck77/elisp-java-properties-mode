@@ -196,4 +196,7 @@ If some dependency is found, a list of them is returned (to be better defined…
 (defun jproperty-utils-string-with-content-p (string)
   (not (string-match-p "^[ 	]*$" string)))
 
+(defun jproperty-utils-format-dependencies (dependencies)
+  (mapc (lambda (x) (print (format "%s" x))) dependencies))
+
 (provide 'jproperty-utils)
