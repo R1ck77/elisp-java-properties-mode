@@ -27,6 +27,27 @@ and if that's the case, stop with an error"
       ;;; Invalid resource lines are deleted without question
       (jproperty-utils-kill-line))))
 
+;;; TODO weak/non weak referencing difference not accounted yet
+(defun jproperty-check-key-of-current-property ()
+  "Check the property in the current line.
+
+Mark the line if the property is not referenced by any java file, or if it's only weakly referenced.
+
+Unreferened: font-lock-preprocessor-face
+Weakly referenced (when implemented): font-lock-variable-name-face"
+  (interactive)
+  (let ((key-value (jproperty-utils-valid-resource-p)))
+    (if (and key-value (jproperty-utils-string-with-content-p (cdr key-value)))
+        (if (jproperty-utils-java-dependencies-p (car key-value))
+            (jproperty-utils-remove-fonts-from-line)
+          (jproperty-utils-mark-resource-key-as-unused)))))
+
+(defun jproperty-check-all-keys-in-file ()
+  "Check all properties for unused keys"
+  (interactive)
+  (seql-for-each-line (lambda ()
+       (jproperty-check-key-of-current-property))))
+
 ;;; Hook utility function
 (defun jproperty-find-file-hook ()
   "Java property mode when opening files ending with .resources and .properties"
@@ -52,7 +73,9 @@ and if that's the case, stop with an error"
 (defvar jproperty-mode-map nil "Keymap for jproperty majore mode")
 (when (not jproperty-mode-map)
   (setq jproperty-mode-map (make-keymap))
-  (define-key jproperty-mode-map "\C-c\C-k" 'jproperty-smart-delete-resource))
+  (define-key jproperty-mode-map "\C-c\C-k" 'jproperty-smart-delete-resource)
+  (define-key jproperty-mode-map "\C-c\C-v" 'jproperty-check-key-of-current-property)
+  (define-key jproperty-mode-map "\C-c\C-a" 'jproperty-check-all-keys-in-file))
 
 (defun jproperty-mode ()
   (interactive)

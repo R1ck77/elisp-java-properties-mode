@@ -158,4 +158,40 @@ If some dependency is found, a list of them is returned (to be better defined…
       (setq all-java-files (cdr all-java-files)))
     references))
 
+(defun jproperty-utils-apply-font-on-current-line (text-highlighter)
+  (save-excursion
+    (beginning-of-line)
+    (let ((start (point)))
+      (end-of-line)
+      (let ((end (point)))
+        (funcall text-highlighter start end)))))
+
+(defun jproperty-utils-remove-fonts-from-line ()
+  "Remove all fontification properties from the current line"
+  (jproperty-utils-apply-font-on-current-line
+   (lambda (start end)
+     (remove-text-properties start end '(font-lock-face)))))
+
+(defun jproperty-utils-current-resource-limits ()
+  "Read the current line and return a cons cell with the key and value bounds"
+  (save-excursion
+    (save-restriction
+      (narrow-to-region (line-beginning-position) (line-end-position))
+      (goto-char (point-min))
+     (save-match-data
+       (when (search-forward-regexp "^[[:blank:]]*\\(.*?\\)[[:blank:]]*=[[:blank:]]*\\(.*?\\)[[:blank:]]*$" nil t)
+         (list (match-beginning 1) (match-end 1)
+               (match-beginning 2) (match-end 2)))))))
+
+(defun jproperty-utils-mark-resource-key-as-unused ()
+  "Mark the current key with the 'unused' mark"
+ (let ((limits (jproperty-utils-current-resource-limits)))
+    (when limits
+      (put-text-property (nth 0 limits) (nth 1 limits)
+                         'font-lock-face
+                         font-lock-preprocessor-face))))
+
+(defun jproperty-utils-string-with-content-p (string)
+  (not (string-match-p "^[ 	]*$" string)))
+
 (provide 'jproperty-utils)
