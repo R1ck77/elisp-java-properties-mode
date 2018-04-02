@@ -51,10 +51,11 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"
   (interactive)
-  (let ((dependencies (jproperty-utils-java-dependencies-p (car (jproperty-utils-valid-resource-p)))))
+  (let* ((key-value (jproperty-utils-valid-resource-p))
+         (dependencies (jproperty-utils-java-dependencies-p (car key-value))))
     (with-output-to-temp-buffer "Key dependencies"
       (with-current-buffer (get-buffer "Key dependencies")
-        (jproperty-utils-print-dependencies dependencies)))))
+        (jproperty-utils-print-dependencies (car key-value) dependencies)))))
 
 ;;; Hook utility function
 (defun jproperty-find-file-hook ()

@@ -196,13 +196,14 @@ If some dependency is found, a list of them is returned (to be better defined…
 (defun jproperty-utils-string-with-content-p (string)
   (not (string-match-p "^[ 	]*$" string)))
 
-(defun jproperty-utils-print-dependencies (dependencies-representation)
-  (if dependencies-representation
-      (mapc (lambda (x)
+(defun jproperty-utils-print-dependencies (key dependencies-representation)
+  (if (not dependencies-representation)
+      (insert (propertize "No dependencies found!" 'face 'bold))
+    (insert (propertize (concat "Dependencies for '" key "':\n") 'face 'bold ))
+    (mapc (lambda (x)
               (insert (format "%s:%d %s\n"
                              (first x)
                              (second x)
-                             (nth 2 x)))) dependencies-representation)
-    (print "No dependencies found!")))
+                             (nth 2 x)))) dependencies-representation)))
 
 (provide 'jproperty-utils)
