@@ -132,13 +132,13 @@ Return a cons cell with line number and content"
 
 (defun jproperty-utils-add-file-to-result (filename number-line)
   "Turn a result of type (line-num . line-content) into (filename line content)"
-  (list (car number-line) filename (cdr number-line)))
+  (list filename (car number-line) (cdr number-line)))
 
 (defun jproperty-utils-dependency-of-key-from-path-p (path key)
   "Return nil if no file has dependencies from the current key
 
 If some dependency is found, a list of them is returned (to be better defined…)"
-  (let ((filename (file-name-base path))) ;;; don't create a lambda at every turn!a
+  (let ((filename (file-name-nondirectory path))) ;;; don't create a lambda at every turn!a
     (mapcar (lambda (result) (jproperty-utils-add-file-to-result filename result))
             (append (jproperty-utils-full-key-matches-in-file path key)
                     (jproperty-utils-tail-key-matches-in-file path key)))))
@@ -196,7 +196,13 @@ If some dependency is found, a list of them is returned (to be better defined…
 (defun jproperty-utils-string-with-content-p (string)
   (not (string-match-p "^[ 	]*$" string)))
 
-(defun jproperty-utils-format-dependencies (dependencies)
-  (mapc (lambda (x) (print (format "%s" x))) dependencies))
+(defun jproperty-utils-print-dependencies (dependencies-representation)
+  (if dependencies-representation
+      (mapc (lambda (x)
+              (insert (format "%s:%d %s\n"
+                             (first x)
+                             (second x)
+                             (nth 2 x)))) dependencies-representation)
+    (print "No dependencies found!")))
 
 (provide 'jproperty-utils)

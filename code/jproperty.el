@@ -53,7 +53,8 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (interactive)
   (let ((dependencies (jproperty-utils-java-dependencies-p (car (jproperty-utils-valid-resource-p)))))
     (with-output-to-temp-buffer "Key dependencies"
-      (jproperty-utils-format-dependencies dependencies))))
+      (with-current-buffer (get-buffer "Key dependencies")
+        (jproperty-utils-print-dependencies dependencies)))))
 
 ;;; Hook utility function
 (defun jproperty-find-file-hook ()
