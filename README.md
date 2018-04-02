@@ -10,7 +10,7 @@ Installation
 
 Copy the files in "code" to a `load-path` directory and add
 
-    (require 'jproeprty)
+    (require 'jproperty)
     (add-hook 'find-file-hook 'jproperty-find-file-hook) 
 
 in your config file to automatically turn the mode on when loading files ending with `.resources` and `.properties`.
