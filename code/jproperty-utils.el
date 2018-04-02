@@ -113,11 +113,17 @@ Fails with an error if the file cannot be deleted"
     (goto-char (point-min))
     (jproperty-utils-matching-lines-in-buffer regex)))
 
+(defun jproperty-utils--turn-cons-into-list-by-adding-symbol (symbol elements)
+  ;;; TODO save the lambda beforehand
+  (mapcar (lambda (x)
+         (list symbol (car x) (cdr x)))
+       elements))
+
 (defun jproperty-utils-full-key-matches-in-file (path key)
   "Check if the file contains lines matching the string '\"key\"'
 
-Return a cons cell with line number and content"  (jproperty-utils-matching-lines-for-file path
-                                           (regexp-quote (concat "\"" key "\""))))
+Return list of lists containing the symbol 'full, the filename, the line number and line content"
+  (jproperty-utils--turn-cons-into-list-by-adding-symbol 'full (jproperty-utils-matching-lines-for-file path (regexp-quote (concat "\"" key "\"")))))
 
 (defun jproperty-utils-last-key-element (key)
   (car (last (split-string key "[.]"))))
@@ -126,13 +132,13 @@ Return a cons cell with line number and content"  (jproperty-utils-matching-line
   "Check if the file contains lines matching the string 'last-key-element\"'
 
 last-key-element is the last component of the dot separated key.
-Return a cons cell with line number and content"
-  (jproperty-utils-matching-lines-for-file path
-                                  (regexp-quote (concat (jproperty-utils-last-key-element key) "\""))))
 
-(defun jproperty-utils-add-file-to-result (filename number-line)
-  "Turn a result of type (line-num . line-content) into (filename line content)"
-  (list filename (car number-line) (cdr number-line)))
+Return list of lists containing the symbol 'tail, the filename, the line number and line content"
+  (jproperty-utils--turn-cons-into-list-by-adding-symbol 'tail (jproperty-utils-matching-lines-for-file path (regexp-quote (concat (jproperty-utils-last-key-element key) "\"")))))
+
+(defun jproperty-utils-add-file-to-result (filename result)
+  "Turn a result of type (symbol line-num line-content) into (symbol filename line content)"
+  (list (first result) filename (nth 1 result) (nth 2 result)))
 
 (defun jproperty-utils-dependency-of-key-from-path-p (path key)
   "Return nil if no file has dependencies from the current key
@@ -199,11 +205,15 @@ If some dependency is found, a list of them is returned (to be better defined…
 (defun jproperty-utils-print-dependencies (key dependencies-representation)
   (if (not dependencies-representation)
       (insert (propertize "No dependencies found!" 'face 'bold))
-    (insert (propertize (concat "Dependencies for '" key "':\n") 'face 'bold ))
+    (insert (propertize (concat "Dependencies for '" key "' (work in progress…):\n\n") 'face 'bold ))
     (mapc (lambda (x)
-              (insert (format "%s:%d %s\n"
-                             (first x)
-                             (second x)
-                             (nth 2 x)))) dependencies-representation)))
+            (insert (format "%s %s:%s %s\n"
+                            (if (eq 'full (nth 0 x))
+                                (propertize (symbol-name (nth 0 x)) 'face 'bold)
+                              (nth 0 x))                            
+                            (propertize (nth 1 x) 'face 'file-name-shadow)
+                            (propertize (number-to-string (nth 2 x)) 'face 'linum)
+                            (propertize (nth 3 x) 'face 'font-lock-builtin-face))))
+          dependencies-representation)))
 
 (provide 'jproperty-utils)
