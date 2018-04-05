@@ -107,8 +107,19 @@ Fails with an error if the file cannot be deleted"
                                                               (list (cons counter line)))))))
     accumulator))
 
+(defun jproperty-utils-any-match-for-file (path regex)
+  "Return a cons cell (1 . \"matches\") if the file at path matches the regexp"
+  (with-temp-buffer (insert-file-contents path)
+                    (if (string-match-p regex (buffer-string))
+                        (cons 1 "matches")
+                      nil)))
+
 (defun jproperty-utils-matching-lines-for-file (path regex)
-  "Return a buffer visiting the path, or error if impossible to do so"
+  "Return all matches of the specified regex in the path in the form:
+
+((line number . line content)
+ (line number . line content)
+ …)"
   (with-current-buffer (find-file-noselect path t)
     (goto-char (point-min))
     (jproperty-utils-matching-lines-in-buffer regex)))
