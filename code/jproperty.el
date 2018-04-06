@@ -48,19 +48,24 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (seql-for-each-line (lambda ()
                         (jproperty-check-key-of-current-property))))
 
+(defun jproperty--check-results-for-keys ()
+  (let ((all-keys (jproperty-utils-all-resource-keys))
+        (foobar nil))
+    (let ((java-files (jproperty-utils-get-all-java-files)))
+      (with-temp-buffer
+        (while java-files
+          (let ((current-file (car java-files)))
+            ;;; (message (format "Checking %s" current-file))
+             (delete-region (point-min) (point-max))
+             (insert-file-contents (car java-files))
+             (setq foobar (append foobar (jproperty-utils-keys-in-buffer current-file all-keys))))
+           (setq java-files (cdr java-files)))))
+    foobar))
+
 (defun jproperty-check-all-keys-in-file2 ()
   "Check all properties for unused keys"
   (interactive)
-  (let ((all-keys (jproperty-utils-all-resource-keys))
-        (results nil))
-    (with-temp-buffer
-      (let ((java-files (jproperty-utils-get-all-java-files)))
-        (while java-files
-          (let ((current-file (car java-files)))
-            (delete-region (point-min) (point-max))
-            (insert-file-contents (car java-files))
-            (setq results (append results (jproperty-utils-keys-in-buffer current-file all-keys))))
-          (setq java-files (cdr java-files)))))))
+  (message (format "The results are: %s" (jproperty--check-results-for-keys))))
 
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"

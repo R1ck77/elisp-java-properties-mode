@@ -231,10 +231,10 @@ If some dependency is found, a list of them is returned (to be better defined…
 
 (defun jproperty-utils--check-keys-in-line (line keys)
   "Check which keys are referenced (as strings) in the line, return a list of keys"
-  (let ((result nil))
-    (mapc (lambda (key))
-          (when (jproperty-utils--line-contains-key-p line key)
-            (setq result (cons key results)))
+  (let ((results nil))
+    (mapc (lambda (key)
+            (when (jproperty-utils--line-contains-key-p line key)
+            (setq results (cons key results)))) 
           keys)))
 
 (defun jproperty-utils--add-file-line-information (filename line-num keys)
@@ -247,15 +247,16 @@ If some dependency is found, a list of them is returned (to be better defined…
 
 Returns a list of matching keys"
   (save-match-data
-    (let ((result nil)
+    (let ((results nil)
           (line-num 1)
           (filename (file-name-nondirectory path)))
      (seql-for-each-line-content
       (lambda (line)
         (setq results (append results
                               (jproperty-utils--add-file-line-information filename
-                                                                   line-num
-                                                                   (jproperty-utils--check-keys-in-line line keys))))
-        (setq line-num (+ line-num 1)))))))
+                                                                          line-num
+                                                                          (jproperty-utils--check-keys-in-line line keys))))
+        (setq line-num (+ line-num 1))))
+     results)))
 
 (provide 'jproperty-utils)
