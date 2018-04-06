@@ -48,9 +48,25 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (seql-for-each-line (lambda ()
                         (jproperty-check-key-of-current-property))))
 
+(defun jproperty--update-hash-value (result hash-table)
+  (let* ((key (nth 2 result))
+         (previous (gethash key hash-table)))
+    (puthash key
+             (if (not previous)
+                 (list result)
+               (cons result previous))
+             hash-table)))
+
+(defun jproperty--convert-to-hash-table (results)
+  (let ((hash-table (make-hash-table ':test 'equal)))
+    (mapc (lambda (result)
+            (jproperty--update-hash-value result hash-table))
+          results)
+    hash-table))
+
 (defun jproperty--check-results-for-keys ()
   (let ((all-keys (jproperty-utils-all-resource-keys))
-        (foobar nil))
+        (results nil))
     (let ((java-files (jproperty-utils-get-all-java-files)))
       (with-temp-buffer
         (while java-files
@@ -58,14 +74,14 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
             ;;; (message (format "Checking %s" current-file))
              (delete-region (point-min) (point-max))
              (insert-file-contents (car java-files))
-             (setq foobar (append foobar (jproperty-utils-keys-in-buffer current-file all-keys))))
+             (setq results (append results (jproperty-utils-keys-in-buffer current-file all-keys))))
            (setq java-files (cdr java-files)))))
-    foobar))
+    (jproperty--convert-to-hash-table results)))
 
 (defun jproperty-check-all-keys-in-file2 ()
   "Check all properties for unused keys"
   (interactive)
-  (message (format "The results are: %s" (jproperty--check-results-for-keys))))
+  (maphash (lambda (key value) (message (format "%s -> %s" key "[omitted]"))) (jproperty--check-results-for-keys)))
 
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"
