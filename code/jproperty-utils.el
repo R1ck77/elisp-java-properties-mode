@@ -152,14 +152,14 @@ If some dependency is found, a list of them is returned (to be better defined…
 (defun jproperty-utils-java-file-p (path)
   (string-match-p "\\.java$" path))
 
-(defun jproperty-get-all-java-files ()
+(defun jproperty-utils-get-all-java-files ()
   (seq-filter 'jproperty-utils-java-file-p (fwrapper-all-files (jproperty-utils--java-subtree))))
 
 (defun jproperty-utils-java-dependencies-p (key)
   "Return not nil if the key is referenced (with some logic) in a java file"
   (if (null key)
       nil
-      (let ((all-java-files (jproperty-get-all-java-files))
+      (let ((all-java-files (jproperty-utils-get-all-java-files))
             (references nil))
         (while all-java-files
           (setq references (append references (jproperty-utils-dependency-of-key-from-path-p (car all-java-files) key)))
@@ -215,5 +215,47 @@ If some dependency is found, a list of them is returned (to be better defined…
                             (propertize (number-to-string (nth 2 x)) 'face 'linum)
                             (propertize (nth 3 x) 'face 'font-lock-builtin-face))))
           dependencies-representation)))
+
+(defun jproperty-utils-all-resource-keys ()
+  "Return a list of all keys present in the property file without check"
+  (let ((result nil))
+    (seql-for-each-line
+     (lambda ()
+       (let ((key-value (jproperty-utils--parse-current-resource)))
+         (when (car key-value)
+           (setq result (cons (substring-no-properties (car key-value)) result ))))))
+    result))
+
+(defun jproperty-utils--line-contains-key-p (line key)
+  (string-match-p (regexp-quote (concat "\"" key "\"")) line))
+
+(defun jproperty-utils--check-keys-in-line (line keys)
+  "Check which keys are referenced (as strings) in the line, return a list of keys"
+  (let ((result nil))
+    (mapc (lambda (key))
+          (when (jproperty-utils--line-contains-key-p line key)
+            (setq result (cons key results)))
+          keys)))
+
+(defun jproperty-utils--add-file-line-information (filename line-num keys)
+  (mapcar (lambda (key)
+            (list filename line-num key)) keys))
+
+;;; TODO: change semantic eventually! Use hash-table to store the results (detect duplicate keys!)
+(defun jproperty-utils-keys-in-buffer (path keys)
+  "Check all lines of the current buffer for keys match.
+
+Returns a list of matching keys"
+  (save-match-data
+    (let ((result nil)
+          (line-num 1)
+          (filename (file-name-nondirectory path)))
+     (seql-for-each-line-content
+      (lambda (line)
+        (setq results (append results
+                              (jproperty-utils--add-file-line-information filename
+                                                                   line-num
+                                                                   (jproperty-utils--check-keys-in-line line keys))))
+        (setq line-num (+ line-num 1)))))))
 
 (provide 'jproperty-utils)

@@ -48,6 +48,20 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (seql-for-each-line (lambda ()
                         (jproperty-check-key-of-current-property))))
 
+(defun jproperty-check-all-keys-in-file2 ()
+  "Check all properties for unused keys"
+  (interactive)
+  (let ((all-keys (jproperty-utils-all-resource-keys))
+        (results nil))
+    (with-temp-buffer
+      (let ((java-files (jproperty-utils-get-all-java-files)))
+        (while java-files
+          (let ((current-file (car java-files)))
+            (delete-region (point-min) (point-max))
+            (insert-file-contents (car java-files))
+            (setq results (append results (jproperty-utils-keys-in-buffer current-file all-keys))))
+          (setq java-files (cdr java-files)))))))
+
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"
   (interactive)
@@ -84,7 +98,7 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (setq jproperty-mode-map (make-keymap))
   (define-key jproperty-mode-map "\C-c\C-k" 'jproperty-smart-delete-resource)
   (define-key jproperty-mode-map "\C-c\C-v" 'jproperty-check-key-of-current-property)
-  (define-key jproperty-mode-map "\C-c\C-a" 'jproperty-check-all-keys-in-file)
+  (define-key jproperty-mode-map "\C-c\C-a" 'jproperty-check-all-keys-in-file2)
   (define-key jproperty-mode-map "\C-c\C-s" 'jproperty-show-key-dependencies))
 
 (defun jproperty-mode ()
