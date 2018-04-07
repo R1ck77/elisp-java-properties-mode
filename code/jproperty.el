@@ -49,17 +49,16 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
                         (jproperty-check-key-of-current-property))))
 
 (defun jproperty--update-hash-value (result hash-table)
-  (let* ((key (nth 2 result))
-         (previous (gethash key hash-table)))
+  (let ((key (nth 2 result)))
+    ;;; (message (format "Working with the hash %s the current result is %s the result before modification is: %s" key result (gethash key hash-table)))
     (puthash key
-             (if (not previous)
-                 (list result)
-               (cons result previous))
+             (cons result (gethash key hash-table))
              hash-table)))
 
 (defun jproperty--convert-to-hash-table (results)
   (let ((hash-table (make-hash-table ':test 'equal)))
     (mapc (lambda (result)
+            ;;; (message (format "Mapping this result: %s" result))
             (jproperty--update-hash-value result hash-table))
           results)
     hash-table))
@@ -81,7 +80,16 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
 (defun jproperty-check-all-keys-in-file2 ()
   "Check all properties for unused keys"
   (interactive)
-  (maphash (lambda (key value) (message (format "%s -> %s" key "[omitted]"))) (jproperty--check-results-for-keys)))
+  (let ((dependencies (jproperty--check-results-for-keys)))
+    (seql-for-each-line (lambda ()
+                          (let ((key-value (jproperty-utils--parse-current-resource)))
+                            ;;; TODO: move THIS code with modification in the origin code
+                            ;;; This part was copied from jproperty-check-key-of-current-property!!!!
+                            (message (format "Evaluating %s" (car key-value)))
+                            (if (and key-value (jproperty-utils-string-with-content-p (cdr key-value)))
+                                (if (> (length (gethash (car key-value) dependencies)) 0)
+                                    (jproperty-utils-remove-fonts-from-line)
+                                  (jproperty-utils-mark-resource-key-as-unused))))))))
 
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"
