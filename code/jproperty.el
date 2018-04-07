@@ -1,4 +1,4 @@
-(require 'jproperty-utils)
+(require 'jproputil)
 
 ;;; eval
 ;;;    (setq load-path (cons (file-name-directory (buffer-file-name)) load-path))
@@ -12,20 +12,20 @@
 If an argument is provided, also verify that the resource doesn't have any weak reference in the java files, 
 and if that's the case, stop with an error"
   (interactive "P")
-  (let ((key-value (jproperty-utils-valid-resource-p)))
+  (let ((key-value (jproputil-valid-resource-p)))
     (if key-value
         ;;; Valid resources
-        (let ((resource-file (jproperty-utils-resource-as-path (cdr key-value))))
-          (if (jproperty-utils-is-file-p resource-file)
+        (let ((resource-file (jproputil-resource-as-path (cdr key-value))))
+          (if (jproputil-is-file-p resource-file)
               (if (and (not check-skip-java-dependencies-test)
-                       (jproperty-utils-java-dependencies-p (car key-value)))
+                       (jproputil-java-dependencies-p (car key-value)))
                   (error (format "I won't remove referenced resource '%s'" (car key-value)))
                 ;;; Valid resources when removed should remove the corresponding file
-                (jproperty-utils-remove-line-and-file resource-file))
+                (jproputil-remove-line-and-file resource-file))
             ;;; Resources not associated with files just need the line removed
-            (jproperty-utils-kill-line)))
+            (jproputil-kill-line)))
       ;;; Invalid resource lines are deleted without question
-      (jproperty-utils-kill-line))))
+      (jproputil-kill-line))))
 
 ;;; TODO weak/non weak referencing difference not accounted yet
 (defun jproperty-check-key-of-current-property ()
@@ -36,11 +36,11 @@ Mark the line if the property is not referenced by any java file, or if it's onl
 Unreferened: font-lock-preprocessor-face
 Weakly referenced (when implemented): font-lock-variable-name-face"
   (interactive)
-  (let ((key-value (jproperty-utils-valid-resource-p)))
-    (if (and key-value (jproperty-utils-string-with-content-p (cdr key-value)))
-        (if (jproperty-utils-java-dependencies-p (car key-value))
-            (jproperty-utils-remove-fonts-from-line)
-          (jproperty-utils-mark-resource-key-as-unused)))))
+  (let ((key-value (jproputil-valid-resource-p)))
+    (if (and key-value (jproputil-string-with-content-p (cdr key-value)))
+        (if (jproputil-java-dependencies-p (car key-value))
+            (jproputil-remove-fonts-from-line)
+          (jproputil-mark-resource-key-as-unused)))))
 
 (defun jproperty-check-all-keys-in-file ()
   "Check all properties for unused keys"
@@ -64,16 +64,16 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
     hash-table))
 
 (defun jproperty--check-results-for-keys ()
-  (let ((all-keys (jproperty-utils-all-resource-keys))
+  (let ((all-keys (jproputil-all-resource-keys))
         (results nil))
-    (let ((java-files (jproperty-utils-get-all-java-files)))
+    (let ((java-files (jproputil-get-all-java-files)))
       (with-temp-buffer
         (while java-files
           (let ((current-file (car java-files)))
             ;;; (message (format "Checking %s" current-file))
              (delete-region (point-min) (point-max))
              (insert-file-contents (car java-files))
-             (setq results (append results (jproperty-utils-keys-in-buffer current-file all-keys))))
+             (setq results (append results (jproputil-keys-in-buffer current-file all-keys))))
            (setq java-files (cdr java-files)))))
     (jproperty--convert-to-hash-table results)))
 
@@ -82,23 +82,23 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (interactive)
   (let ((dependencies (jproperty--check-results-for-keys)))
     (seql-for-each-line (lambda ()
-                          (let ((key-value (jproperty-utils--parse-current-resource)))
+                          (let ((key-value (jproputil--parse-current-resource)))
                             ;;; TODO: move THIS code with modification in the origin code
                             ;;; This part was copied from jproperty-check-key-of-current-property!!!!
                             (message (format "Evaluating %s" (car key-value)))
-                            (if (and key-value (jproperty-utils-string-with-content-p (cdr key-value)))
+                            (if (and key-value (jproputil-string-with-content-p (cdr key-value)))
                                 (if (> (length (gethash (car key-value) dependencies)) 0)
-                                    (jproperty-utils-remove-fonts-from-line)
-                                  (jproperty-utils-mark-resource-key-as-unused))))))))
+                                    (jproputil-remove-fonts-from-line)
+                                  (jproputil-mark-resource-key-as-unused))))))))
 
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"
   (interactive)
-  (let* ((key-value (jproperty-utils-valid-resource-p))
-         (dependencies (jproperty-utils-java-dependencies-p (car key-value))))
+  (let* ((key-value (jproputil-valid-resource-p))
+         (dependencies (jproputil-java-dependencies-p (car key-value))))
     (with-output-to-temp-buffer "Key dependencies"
       (with-current-buffer (get-buffer "Key dependencies")
-        (jproperty-utils-print-dependencies (car key-value) dependencies)))))
+        (jproputil-print-dependencies (car key-value) dependencies)))))
 
 ;;; Hook utility function
 (defun jproperty-find-file-hook ()
