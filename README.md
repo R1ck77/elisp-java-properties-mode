@@ -34,6 +34,10 @@ will check the key of the property at point, and change the color of the key if 
     
 Like `jproperty-check-key-of-current-property`, but for each line in the current buffer. Bound to `C-c C-a` by default.
 
+    jproperty-show-key-dependencies
+    
+Is a (very early) attempt at showing the dependencies for the code from the specific key. Bound to `C-c C-s` by default.
+
 License
 ===
 
