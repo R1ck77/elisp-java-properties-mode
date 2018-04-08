@@ -1,6 +1,5 @@
 (require 'expcache)
 (require 'seq)
-(require 'cl-seq)
 
 (defvar fwrapper--files-cache nil "cache with the list of files in the java directory")
 (make-variable-buffer-local 'fwrapper--files-cache)
