@@ -42,12 +42,6 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
             (jproputil-remove-fonts-from-line)
           (jproputil-mark-resource-key-as-unused)))))
 
-(defun jproperty-check-all-keys-in-file ()
-  "Check all properties for unused keys"
-  (interactive)
-  (seql-for-each-line (lambda ()
-                        (jproperty-check-key-of-current-property))))
-
 (defun jproperty--update-hash-value (result hash-table)
   (let ((key (nth 2 result)))
     ;;; (message (format "Working with the hash %s the current result is %s the result before modification is: %s" key result (gethash key hash-table)))
@@ -77,7 +71,7 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
            (setq java-files (cdr java-files)))))
     (jproperty--convert-to-hash-table results)))
 
-(defun jproperty-check-all-keys-in-file2 ()
+(defun jproperty-check-all-keys-in-file ()
   "Check all properties for unused keys"
   (interactive)
   (let ((dependencies (jproperty--check-results-for-keys)))
@@ -127,7 +121,7 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (setq jproperty-mode-map (make-keymap))
   (define-key jproperty-mode-map "\C-c\C-k" 'jproperty-smart-delete-resource)
   (define-key jproperty-mode-map "\C-c\C-v" 'jproperty-check-key-of-current-property)
-  (define-key jproperty-mode-map "\C-c\C-a" 'jproperty-check-all-keys-in-file2)
+  (define-key jproperty-mode-map "\C-c\C-a" 'jproperty-check-all-keys-in-file)
   (define-key jproperty-mode-map "\C-c\C-s" 'jproperty-show-key-dependencies))
 
 (defun jproperty-mode ()
