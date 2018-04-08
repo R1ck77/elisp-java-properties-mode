@@ -227,15 +227,16 @@ If some dependency is found, a list of them is returned (to be better defined…
     result))
 
 (defun jproputil--line-contains-key-p (line key)
-  (string-match-p (regexp-quote (concat "\"" key "\"")) line))
+  (string-match-p (concat "\"" (regexp-quote key) "\"") line))
 
 (defun jproputil--check-keys-in-line (line keys)
   "Check which keys are referenced (as strings) in the line, return a list of keys"
   (let ((results nil))
     (mapc (lambda (key)
             (when (jproputil--line-contains-key-p line key)
-            (setq results (cons key results)))) 
-          keys)))
+              (setq results (cons key results)))) 
+          keys)
+    results))
 
 (defun jproputil--add-file-line-information (filename line-num keys)
   (mapcar (lambda (key)
