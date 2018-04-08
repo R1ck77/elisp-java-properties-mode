@@ -75,15 +75,13 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   "Check all properties for unused keys"
   (interactive)
   (let ((dependencies (jproperty--check-results-for-keys)))
-    (seql-for-each-line (lambda ()
-                          (let ((key-value (jproputil--parse-current-resource)))
-                            ;;; TODO: move THIS code with modification in the origin code
-                            ;;; This part was copied from jproperty-check-key-of-current-property!!!!
-                            (message (format "Evaluating %s" (car key-value)))
-                            (if (and key-value (jproputil-string-with-content-p (cdr key-value)))
-                                (if (> (length (gethash (car key-value) dependencies)) 0)
-                                    (jproputil-remove-fonts-from-line)
-                                  (jproputil-mark-resource-key-as-unused))))))))
+    (with-properties-in-buffer (key value)
+                               ;;; TODO: move THIS code with modification in the origin code
+                               ;;; This part was copied from jproperty-check-key-of-current-property!!!!
+                               (if (jproputil-string-with-content-p value)
+                                   (if (> (length (gethash key dependencies)) 0)
+                                       (jproputil-remove-fonts-from-line)
+                                     (jproputil-mark-resource-key-as-unused))))))
 
 (defun jproperty-show-key-dependencies ()
   "Show how the current property is referenced in code"

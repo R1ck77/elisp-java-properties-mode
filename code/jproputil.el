@@ -216,14 +216,20 @@ If some dependency is found, a list of them is returned (to be better defined…
                             (propertize (nth 3 x) 'face 'font-lock-builtin-face))))
           dependencies-representation)))
 
+(defmacro with-properties-in-buffer (pair-definition &rest forms)
+  (let ((key-value (make-symbol "key-value")))
+    `(seql-for-each-line (lambda ()
+                           (let ((,key-value (jproputil--parse-current-resource)))
+                             (if ,key-value
+                                 (let ((,(first pair-definition) (substring-no-properties (car ,key-value)))
+                                       (,(second pair-definition) (substring-no-properties (cdr ,key-value))))
+                                   ,@forms)))))))
+
 (defun jproputil-all-resource-keys ()
   "Return a list of all keys present in the property file without check"
   (let ((result nil))
-    (seql-for-each-line
-     (lambda ()
-       (let ((key-value (jproputil--parse-current-resource)))
-         (when (car key-value)
-           (setq result (cons (substring-no-properties (car key-value)) result ))))))
+    (with-properties-in-buffer (key value)
+                               (setq result (cons key result)))
     result))
 
 (defun jproputil--line-contains-key-p (line key)
