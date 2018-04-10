@@ -1,4 +1,4 @@
-(require 'fwrapper)
+(require 'file-seq)
 (require 'seq)
 (require 'seql)
 
@@ -153,7 +153,7 @@ If some dependency is found, a list of them is returned (to be better defined…
   (string-match-p "\\.java$" path))
 
 (defun jproputil-get-all-java-files ()
-  (seq-filter 'jproputil-java-file-p (fwrapper-all-files (jproputil--java-subtree))))
+  (seq-filter 'jproputil-java-file-p (file-seq-all-files (jproputil--java-subtree))))
 
 (defun jproputil-java-dependencies-p (key)
   "Return not nil if the key is referenced (with some logic) in a java file"
