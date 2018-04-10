@@ -35,19 +35,26 @@ It must be:
           (not (or (equal "." basename)
                    (equal ".." basename))))))
 
-(defun fwrapper--all-files (path)
+(defun fwrapper--for-all-files (path consumer)
   (if (not (file-directory-p path))
-      (list path)
+      (funcall consumer path)
     (let* ((contents (fwrapper--safe-directory-files path))
-           (files (seq-filter 'fwrapper--readable-file-p contents))
            (directories (seq-filter 'fwrapper--recursable-directory-p contents)))
+      ;;; name this next expression
+      (mapc (lambda (f) (funcall consumer f)) (seq-filter 'fwrapper--readable-file-p contents))
       (while directories
-        (setq files (append files (fwrapper--all-files (car directories))))
-        (setq directories (cdr directories)))
-      files)))
+        (fwrapper--for-all-files (car directories) consumer)
+        (setq directories (cdr directories)))))
+  nil)
+
+(defun fwrapper-for-all-files (path consumer)
+  (fwrapper--for-all-files (file-truename path) consumer))
 
 (defun fwrapper-all-files (path)
-  (fwrapper--all-files (file-truename path)))
+  (let ((result nil))
+    (fwrapper-for-all-files path (lambda (a-file)
+                                   (setq result (cons a-file result))))
+    result))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; TODO/FIXME don't use find, roll your own!
