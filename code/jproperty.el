@@ -61,7 +61,7 @@ Weakly referenced (when implemented): font-lock-variable-name-face"
   (let ((all-keys (jproputil-all-resource-keys))
         (results nil))
     (let ((java-files (jproputil-get-all-java-files)))
-      (with-file-content (java-files)
+      (with-file-content (current-file java-files)
                          (setq results (append results
                                                (jproputil-keys-in-buffer current-file all-keys)))))
     (jproperty--convert-to-hash-table results)))
