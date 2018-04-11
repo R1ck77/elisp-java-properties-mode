@@ -2,6 +2,18 @@
 (require 'seq)
 (require 'seql)
 
+(defmacro with-file-content (paths-list &rest forms)
+  "Execute the forms in a temporary buffer with each file in turn for side effects only.
+
+Return nil."
+  `(with-temp-buffer
+     (mapc (lambda (file-path)
+             (delete-region (point-min) (point-max))
+             (insert-file-contents file-path)
+             ,@forms
+            )
+          ,paths-list)))
+
 (defun jproputil--drop-last-element (path)
   "Remove the last component from the path, until the path becomes a \"\"
 
