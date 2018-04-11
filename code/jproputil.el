@@ -125,6 +125,7 @@ Fails with an error if the file cannot be deleted"
                                                               (list (cons counter line)))))))
     accumulator))
 
+;;; TODO remove this thing
 (defun jproputil-matching-lines-for-file (path regex)
   (with-temp-buffer
     (insert-file-contents path)
